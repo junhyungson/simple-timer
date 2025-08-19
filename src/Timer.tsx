@@ -1,11 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TimerControls from "./components/TimerControls";
 import TimerDisplay from "./components/TimerDisplay";
 
 const Timer = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState<number>(() => {
+    const stored = localStorage.getItem("time");
+    return stored ? Number(stored) : 0;
+  });
 
   const clearTimerInterval = () => {
     if (timerRef.current) {
@@ -14,6 +17,9 @@ const Timer = () => {
       timerRef.current = null;
     }
   };
+  useEffect(() => {
+    localStorage.setItem("time", String(time));
+  }, [time]);
 
   const toggleTimer = () => {
     // before start, clear stuff
@@ -22,6 +28,7 @@ const Timer = () => {
       // if so, check there is timerref.current
       clearTimerInterval();
       setIsRunning(false);
+
       return;
     }
     // start interval and keep it tracked timerref.current
@@ -40,6 +47,7 @@ const Timer = () => {
     clearTimerInterval();
     setIsRunning(false);
     setTime(0);
+    localStorage.removeItem("time");
   };
   return (
     <>
